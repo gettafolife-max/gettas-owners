@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}
+Вход — Getta's Owners
+{% endblock %}
+
+
+{% block content %}
+
+<div class="login-page">
+
+    <div class="login-visual">
+
+        <div class="login-visual-inner">
+
+            <div class="eyebrow">
+                GETTA'S PROPERTY MANAGEMENT
+            </div>
+
+            <h1>
+                Финансы вашей
+                недвижимости
+                <span>в одном месте.</span>
+            </h1>
+
+            <p>
+                Доходы, расходы и итоговая прибыль
+                собственника — прозрачно и удобно.
+            </p>
+
+            <div class="login-stats">
+
+                <div>
+                    <strong>
+                        24/7
+                    </strong>
+
+                    <span>
+                        доступ
+                    </span>
+                </div>
+
+                <div>
+                    <strong>
+                        100%
+                    </strong>
+
+                    <span>
+                        прозрачность
+                    </span>
+                </div>
+
+                <div>
+                    <strong>
+                        Live
+                    </strong>
+
+                    <span>
+                        отчётность
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="login-form-area">
+
+        <form
+            method="POST"
+            class="login-card"
+        >
+
+            <div class="login-card-header">
+
+                <div class="eyebrow dark">
+                    ЛИЧНЫЙ КАБИНЕТ
+                </div>
+
+                <h2>
+                    Добро пожаловать
+                </h2>
+
+                <p>
+                    Войдите, чтобы открыть финансовый отчёт.
+                </p>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="name@example.com"
+                    required
+                    autocomplete="email"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Пароль
+                </label>
+
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Введите пароль"
+                    required
+                    autocomplete="current-password"
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="button button-primary button-full"
+            >
+                Войти в кабинет
+            </button>
+
+
+            <div class="login-security">
+                Доступ к финансовым данным защищён авторизацией.
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
