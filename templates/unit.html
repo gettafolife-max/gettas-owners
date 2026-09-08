@@ -1,0 +1,524 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+{{ unit.name }} — Getta's Owners
+{% endblock %}
+
+
+{% block content %}
+
+<section class="page-header">
+
+    <div>
+
+        <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="back-link"
+        >
+            ← Все объекты
+        </a>
+
+        <div class="eyebrow dark">
+            {{ unit.building or "GETTA'S PROPERTY" }}
+        </div>
+
+        <h1>
+            {{ unit.name }}
+        </h1>
+
+        <p>
+            {% if unit.owner %}
+                Собственник: {{ unit.owner.name }}
+            {% else %}
+                Собственник не назначен
+            {% endif %}
+        </p>
+
+    </div>
+
+    <button
+        class="button button-primary"
+        onclick="
+            document.getElementById('entryModal').classList.add('modal-open')
+        "
+    >
+        + Добавить операцию
+    </button>
+
+</section>
+
+
+<section class="summary-grid">
+
+    <div class="summary-card">
+
+        <div class="summary-label">
+            Выручка
+        </div>
+
+        <div class="summary-value">
+            {{ summary.income|money }}
+            <small>
+                {{ unit.currency }}
+            </small>
+        </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+        <div class="summary-label">
+            Расходы
+        </div>
+
+        <div class="summary-value">
+            {{ summary.expenses|money }}
+            <small>
+                {{ unit.currency }}
+            </small>
+        </div>
+
+    </div>
+
+
+    <div class="summary-card accent">
+
+        <div class="summary-label">
+            Собственнику
+            · {{ unit.owner_share }}%
+        </div>
+
+        <div class="summary-value">
+            {{ summary.owner_profit|money }}
+            <small>
+                {{ unit.currency }}
+            </small>
+        </div>
+
+    </div>
+
+
+    <div class="summary-card dark-card">
+
+        <div class="summary-label">
+            Getta's
+            · {{ unit.company_share }}%
+        </div>
+
+        <div class="summary-value">
+            {{ summary.company_profit|money }}
+            <small>
+                {{ unit.currency }}
+            </small>
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="section">
+
+    <div class="section-header">
+
+        <div>
+
+            <h2>
+                Финансовые операции
+            </h2>
+
+            <p>
+                История доходов и расходов
+            </p>
+
+        </div>
+
+
+        <form
+            method="GET"
+            class="filters"
+        >
+
+            <select name="month">
+
+                <option value="">
+                    Все месяцы
+                </option>
+
+                {% set months = [
+                    (1, 'Январь'),
+                    (2, 'Февраль'),
+                    (3, 'Март'),
+                    (4, 'Апрель'),
+                    (5, 'Май'),
+                    (6, 'Июнь'),
+                    (7, 'Июль'),
+                    (8, 'Август'),
+                    (9, 'Сентябрь'),
+                    (10, 'Октябрь'),
+                    (11, 'Ноябрь'),
+                    (12, 'Декабрь')
+                ] %}
+
+                {% for number, title in months %}
+
+                <option
+                    value="{{ number }}"
+                    {% if selected_month == number %}
+                    selected
+                    {% endif %}
+                >
+                    {{ title }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <input
+                type="number"
+                name="year"
+                placeholder="Год"
+                value="{{ selected_year or '' }}"
+                min="2020"
+                max="2100"
+            >
+
+
+            <button
+                class="button button-light button-small"
+                type="submit"
+            >
+                Показать
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <div class="table-card">
+
+        {% if summary.entries %}
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                <tr>
+
+                    <th>
+                        Дата
+                    </th>
+
+                    <th>
+                        Тип
+                    </th>
+
+                    <th>
+                        Категория
+                    </th>
+
+                    <th>
+                        Комментарий
+                    </th>
+
+                    <th class="text-right">
+                        Сумма
+                    </th>
+
+                    <th></th>
+
+                </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for entry in summary.entries %}
+
+                <tr>
+
+                    <td>
+                        {{ entry.date.strftime('%d.%m.%Y') }}
+                    </td>
+
+                    <td>
+
+                        {% if entry.entry_type == "income" %}
+
+                        <span class="badge badge-income">
+                            Доход
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge badge-expense">
+                            Расход
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {{ entry.category }}
+                    </td>
+
+                    <td class="muted">
+                        {{ entry.description or "—" }}
+                    </td>
+
+                    <td class="text-right">
+
+                        <strong
+                            class="
+                                {% if entry.entry_type == 'income' %}
+                                    income-text
+                                {% else %}
+                                    expense-text
+                                {% endif %}
+                            "
+                        >
+
+                            {% if entry.entry_type == "expense" %}
+                            −
+                            {% else %}
+                            +
+                            {% endif %}
+
+                            {{ entry.amount|money }}
+                            {{ unit.currency }}
+
+                        </strong>
+
+                    </td>
+
+                    <td class="text-right">
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('delete_entry', entry_id=entry.id) }}"
+                            onsubmit="return confirm('Удалить операцию?')"
+                        >
+
+                            <button
+                                class="delete-button"
+                                type="submit"
+                            >
+                                ×
+                            </button>
+
+                        </form>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-table">
+
+            <h3>
+                Пока нет операций
+            </h3>
+
+            <p>
+                Добавьте доход или расход для этого номера.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+
+<div
+    class="modal"
+    id="entryModal"
+>
+
+    <div
+        class="modal-overlay"
+        onclick="
+            document.getElementById('entryModal').classList.remove('modal-open')
+        "
+    ></div>
+
+
+    <div class="modal-card modal-small">
+
+        <div class="modal-header">
+
+            <div>
+
+                <div class="eyebrow dark">
+                    ФИНАНСЫ
+                </div>
+
+                <h2>
+                    Новая операция
+                </h2>
+
+            </div>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="
+                    document.getElementById('entryModal').classList.remove('modal-open')
+                "
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action="{{ url_for('add_entry', unit_id=unit.id) }}"
+        >
+
+            <div class="field">
+
+                <label>
+                    Тип
+                </label>
+
+                <select
+                    name="entry_type"
+                    required
+                >
+
+                    <option value="income">
+                        Доход
+                    </option>
+
+                    <option value="expense">
+                        Расход
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Категория
+                </label>
+
+                <input
+                    type="text"
+                    name="category"
+                    placeholder="Например: аренда"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Сумма
+                </label>
+
+                <input
+                    type="number"
+                    name="amount"
+                    min="0.01"
+                    step="0.01"
+                    placeholder="0.00"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Дата
+                </label>
+
+                <input
+                    type="date"
+                    name="date"
+                    value="{{ now.strftime('%Y-%m-%d') if now else '' }}"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Комментарий
+                </label>
+
+                <textarea
+                    name="description"
+                    placeholder="Дополнительная информация"
+                    rows="3"
+                ></textarea>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="submit"
+                    class="button button-primary button-full"
+                >
+                    Добавить
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+    const dateInput = document.querySelector(
+        'input[name="date"]'
+    );
+
+    if (
+        dateInput
+        && !dateInput.value
+    ) {
+        const today = new Date();
+
+        dateInput.value = today
+            .toISOString()
+            .split("T")[0];
+    }
+</script>
+
+{% endblock %}
