@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Мои объекты — Getta's Owners
+{% endblock %}
+
+
+{% block content %}
+
+<section class="owner-hero">
+
+    <div class="eyebrow">
+        ЛИЧНЫЙ КАБИНЕТ
+    </div>
+
+    <h1>
+        Добро пожаловать,
+        {{ user.name }}
+    </h1>
+
+    <p>
+        Здесь собраны финансовые результаты вашей недвижимости.
+    </p>
+
+</section>
+
+
+<section class="summary-grid owner-summary">
+
+    <div class="summary-card">
+
+        <div class="summary-label">
+            Общая выручка
+        </div>
+
+        <div class="summary-value">
+            {{ total_income|money }}
+        </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+        <div class="summary-label">
+            Общие расходы
+        </div>
+
+        <div class="summary-value">
+            {{ total_expenses|money }}
+        </div>
+
+    </div>
+
+
+    <div class="summary-card accent wide-card">
+
+        <div class="summary-label">
+            Ваша итоговая прибыль
+        </div>
+
+        <div class="summary-value">
+            {{ total_owner_profit|money }}
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="section">
+
+    <div class="section-header">
+
+        <div>
+
+            <h2>
+                Ваши объекты
+            </h2>
+
+            <p>
+                Актуальная финансовая информация
+            </p>
+
+        </div>
+
+    </div>
+
+
+    {% if unit_cards %}
+
+    <div class="property-grid">
+
+        {% for card in unit_cards %}
+
+        <a
+            href="{{ url_for('owner_unit', unit_id=card.unit.id) }}"
+            class="property-card owner-property"
+        >
+
+            <div class="property-card-top">
+
+                <div class="property-icon">
+                    {{ card.unit.apartment_number or "G" }}
+                </div>
+
+                <div class="property-status">
+                    Активен
+                </div>
+
+            </div>
+
+
+            <div class="property-building">
+                {{ card.unit.building or "Getta's Property" }}
+            </div>
+
+            <h3>
+                {{ card.unit.name }}
+            </h3>
+
+
+            <div class="property-divider"></div>
+
+
+            <div class="property-finance-row">
+
+                <span>
+                    Выручка
+                </span>
+
+                <strong>
+                    {{ card.summary.income|money }}
+                    {{ card.unit.currency }}
+                </strong>
+
+            </div>
+
+
+            <div class="property-finance-row">
+
+                <span>
+                    Расходы
+                </span>
+
+                <strong>
+                    {{ card.summary.expenses|money }}
+                    {{ card.unit.currency }}
+                </strong>
+
+            </div>
+
+
+            <div class="property-profit">
+
+                <span>
+                    Ваша прибыль
+                </span>
+
+                <strong>
+                    {{ card.summary.owner_profit|money }}
+                    {{ card.unit.currency }}
+                </strong>
+
+            </div>
+
+        </a>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <h3>
+            Объекты пока не добавлены
+        </h3>
+
+        <p>
+            После подключения объекта он появится здесь.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}
