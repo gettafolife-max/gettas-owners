@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+{{ unit.name }} — Getta's Owners
+{% endblock %}
+
+
+{% block content %}
+
+<section class="owner-unit-header">
+
+    <a
+        href="{{ url_for('owner_dashboard') }}"
+        class="back-link owner-back"
+    >
+        ← Мои объекты
+    </a>
+
+    <div class="eyebrow">
+        {{ unit.building or "GETTA'S PROPERTY" }}
+    </div>
+
+    <h1>
+        {{ unit.name }}
+    </h1>
+
+    <p>
+        Финансовый отчёт по объекту
+    </p>
+
+</section>
+
+
+<section class="summary-grid owner-summary">
+
+    <div class="summary-card">
+
+        <div class="summary-label">
+            Доход
+        </div>
+
+        <div class="summary-value">
+            {{ summary.income|money }}
+
+            <small>
+                {{ unit.currency }}
+            </small>
+        </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+        <div class="summary-label">
+            Расходы
+        </div>
+
+        <div class="summary-value">
+            {{ summary.expenses|money }}
+
+            <small>
+                {{ unit.currency }}
+            </small>
+        </div>
+
+    </div>
+
+
+    <div class="summary-card accent wide-card">
+
+        <div class="summary-label">
+            Ваша прибыль
+            · {{ unit.owner_share }}%
+        </div>
+
+        <div class="summary-value">
+            {{ summary.owner_profit|money }}
+
+            <small>
+                {{ unit.currency }}
+            </small>
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="section">
+
+    <div class="section-header">
+
+        <div>
+
+            <h2>
+                Детализация
+            </h2>
+
+            <p>
+                Все доходы и расходы по объекту
+            </p>
+
+        </div>
+
+
+        <form
+            method="GET"
+            class="filters"
+        >
+
+            <select name="month">
+
+                <option value="">
+                    Все месяцы
+                </option>
+
+                {% set months = [
+                    (1, 'Январь'),
+                    (2, 'Февраль'),
+                    (3, 'Март'),
+                    (4, 'Апрель'),
+                    (5, 'Май'),
+                    (6, 'Июнь'),
+                    (7, 'Июль'),
+                    (8, 'Август'),
+                    (9, 'Сентябрь'),
+                    (10, 'Октябрь'),
+                    (11, 'Ноябрь'),
+                    (12, 'Декабрь')
+                ] %}
+
+                {% for number, title in months %}
+
+                <option
+                    value="{{ number }}"
+                    {% if selected_month == number %}
+                    selected
+                    {% endif %}
+                >
+                    {{ title }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <input
+                type="number"
+                name="year"
+                placeholder="Год"
+                value="{{ selected_year or '' }}"
+            >
+
+
+            <button
+                type="submit"
+                class="button button-light button-small"
+            >
+                Показать
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <div class="table-card">
+
+        {% if summary.entries %}
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                <tr>
+
+                    <th>
+                        Дата
+                    </th>
+
+                    <th>
+                        Операция
+                    </th>
+
+                    <th>
+                        Категория
+                    </th>
+
+                    <th>
+                        Комментарий
+                    </th>
+
+                    <th class="text-right">
+                        Сумма
+                    </th>
+
+                </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for entry in summary.entries %}
+
+                <tr>
+
+                    <td>
+                        {{ entry.date.strftime('%d.%m.%Y') }}
+                    </td>
+
+                    <td>
+
+                        {% if entry.entry_type == "income" %}
+
+                        <span class="badge badge-income">
+                            Доход
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge badge-expense">
+                            Расход
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {{ entry.category }}
+                    </td>
+
+                    <td class="muted">
+                        {{ entry.description or "—" }}
+                    </td>
+
+                    <td class="text-right">
+
+                        <strong
+                            class="
+                                {% if entry.entry_type == 'income' %}
+                                income-text
+                                {% else %}
+                                expense-text
+                                {% endif %}
+                            "
+                        >
+
+                            {% if entry.entry_type == "expense" %}
+                            −
+                            {% else %}
+                            +
+                            {% endif %}
+
+                            {{ entry.amount|money }}
+                            {{ unit.currency }}
+
+                        </strong>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-table">
+
+            <h3>
+                За выбранный период операций нет
+            </h3>
+
+            <p>
+                Попробуйте выбрать другой период.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endblock %}
