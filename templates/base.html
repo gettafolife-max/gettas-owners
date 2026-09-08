@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block title %}
+        Getta's Owners
+        {% endblock %}
+    </title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <header class="topbar">
+
+        <a
+            href="{{ url_for('index') }}"
+            class="brand"
+        >
+            <div class="brand-mark">
+                G
+            </div>
+
+            <div class="brand-text">
+                <div class="brand-title">
+                    Getta's
+                </div>
+
+                <div class="brand-subtitle">
+                    Property Management
+                </div>
+            </div>
+        </a>
+
+        {% if session.get("user_id") %}
+
+        <div class="topbar-right">
+
+            <div class="topbar-user">
+                <span class="user-label">
+                    {{ session.get("name") }}
+                </span>
+
+                <span class="user-role">
+                    {% if session.get("role") == "admin" %}
+                        Управление
+                    {% else %}
+                        Собственник
+                    {% endif %}
+                </span>
+            </div>
+
+            <a
+                href="{{ url_for('logout') }}"
+                class="button button-light button-small"
+            >
+                Выйти
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </header>
+
+    <main class="main-content">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% if messages %}
+
+                <div class="flash-container">
+
+                    {% for category, message in messages %}
+
+                        <div class="flash flash-{{ category }}">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+        {% endwith %}
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+</div>
+
+</body>
+</html>
