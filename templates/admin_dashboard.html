@@ -1,0 +1,457 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Управление — Getta's Owners
+{% endblock %}
+
+
+{% block content %}
+
+<section class="page-header">
+
+    <div>
+
+        <div class="eyebrow dark">
+            GETTA'S MANAGEMENT
+        </div>
+
+        <h1>
+            Управление объектами
+        </h1>
+
+        <p>
+            Доходность, расходы и выплаты собственникам.
+        </p>
+
+    </div>
+
+    <button
+        class="button button-primary"
+        onclick="
+            document.getElementById('createUnitModal').classList.add('modal-open')
+        "
+    >
+        + Добавить номер
+    </button>
+
+</section>
+
+
+<section class="summary-grid">
+
+    <div class="summary-card">
+
+        <div class="summary-label">
+            Общий доход
+        </div>
+
+        <div class="summary-value">
+            {{ total_income|money }}
+        </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+        <div class="summary-label">
+            Расходы
+        </div>
+
+        <div class="summary-value">
+            {{ total_expenses|money }}
+        </div>
+
+    </div>
+
+
+    <div class="summary-card accent">
+
+        <div class="summary-label">
+            Собственникам
+        </div>
+
+        <div class="summary-value">
+            {{ total_owner_profit|money }}
+        </div>
+
+    </div>
+
+
+    <div class="summary-card dark-card">
+
+        <div class="summary-label">
+            Доход компании
+        </div>
+
+        <div class="summary-value">
+            {{ total_company_profit|money }}
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="section">
+
+    <div class="section-header">
+
+        <div>
+
+            <h2>
+                Объекты
+            </h2>
+
+            <p>
+                {{ unit_cards|length }} объектов в системе
+            </p>
+
+        </div>
+
+    </div>
+
+
+    {% if unit_cards %}
+
+    <div class="property-grid">
+
+        {% for card in unit_cards %}
+
+        <a
+            href="{{ url_for('admin_unit', unit_id=card.unit.id) }}"
+            class="property-card"
+        >
+
+            <div class="property-card-top">
+
+                <div class="property-icon">
+                    {{ card.unit.apartment_number or "G" }}
+                </div>
+
+                <div class="property-status">
+                    Активен
+                </div>
+
+            </div>
+
+
+            <div class="property-building">
+                {{ card.unit.building or "Getta's Property" }}
+            </div>
+
+            <h3>
+                {{ card.unit.name }}
+            </h3>
+
+            {% if card.unit.owner %}
+
+            <div class="property-owner">
+                {{ card.unit.owner.name }}
+            </div>
+
+            {% else %}
+
+            <div class="property-owner muted">
+                Собственник не назначен
+            </div>
+
+            {% endif %}
+
+
+            <div class="property-divider"></div>
+
+
+            <div class="property-finance-row">
+
+                <span>
+                    Доход
+                </span>
+
+                <strong>
+                    {{ card.summary.income|money }}
+                    {{ card.unit.currency }}
+                </strong>
+
+            </div>
+
+
+            <div class="property-finance-row">
+
+                <span>
+                    Расходы
+                </span>
+
+                <strong>
+                    {{ card.summary.expenses|money }}
+                    {{ card.unit.currency }}
+                </strong>
+
+            </div>
+
+
+            <div class="property-profit">
+
+                <span>
+                    Собственнику
+                </span>
+
+                <strong>
+                    {{ card.summary.owner_profit|money }}
+                    {{ card.unit.currency }}
+                </strong>
+
+            </div>
+
+        </a>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            G
+        </div>
+
+        <h3>
+            Пока нет объектов
+        </h3>
+
+        <p>
+            Добавьте первый номер, чтобы начать вести отчётность.
+        </p>
+
+        <button
+            class="button button-primary"
+            onclick="
+                document.getElementById('createUnitModal').classList.add('modal-open')
+            "
+        >
+            Добавить номер
+        </button>
+
+    </div>
+
+    {% endif %}
+
+</section>
+
+
+<div
+    class="modal"
+    id="createUnitModal"
+>
+
+    <div
+        class="modal-overlay"
+        onclick="
+            document.getElementById('createUnitModal').classList.remove('modal-open')
+        "
+    ></div>
+
+
+    <div class="modal-card">
+
+        <div class="modal-header">
+
+            <div>
+
+                <div class="eyebrow dark">
+                    НОВЫЙ ОБЪЕКТ
+                </div>
+
+                <h2>
+                    Добавить номер
+                </h2>
+
+            </div>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="
+                    document.getElementById('createUnitModal').classList.remove('modal-open')
+                "
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action="{{ url_for('create_unit') }}"
+        >
+
+            <div class="form-grid">
+
+                <div class="field">
+
+                    <label>
+                        Название
+                    </label>
+
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Апартаменты 805"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        Номер
+                    </label>
+
+                    <input
+                        type="text"
+                        name="apartment_number"
+                        placeholder="805"
+                    >
+
+                </div>
+
+
+                <div class="field field-full">
+
+                    <label>
+                        Комплекс
+                    </label>
+
+                    <input
+                        type="text"
+                        name="building"
+                        placeholder="Wyn Residence"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        Собственник
+                    </label>
+
+                    <input
+                        type="text"
+                        name="owner_name"
+                        placeholder="Имя собственника"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        Email собственника
+                    </label>
+
+                    <input
+                        type="email"
+                        name="owner_email"
+                        placeholder="owner@example.com"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        Пароль собственника
+                    </label>
+
+                    <input
+                        type="text"
+                        name="owner_password"
+                        placeholder="Создайте пароль"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        Доля собственника, %
+                    </label>
+
+                    <input
+                        type="number"
+                        name="owner_share"
+                        value="70"
+                        min="0"
+                        max="100"
+                        step="0.01"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        Валюта
+                    </label>
+
+                    <select name="currency">
+
+                        <option value="GEL">
+                            GEL
+                        </option>
+
+                        <option value="USD">
+                            USD
+                        </option>
+
+                        <option value="EUR">
+                            EUR
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="button button-light"
+                    onclick="
+                        document.getElementById('createUnitModal').classList.remove('modal-open')
+                    "
+                >
+                    Отмена
+                </button>
+
+                <button
+                    type="submit"
+                    class="button button-primary"
+                >
+                    Создать объект
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
